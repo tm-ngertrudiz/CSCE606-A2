@@ -7,29 +7,39 @@ class MoviesController < ApplicationController
     end
   
     def index
-
-      #select method returns an ActiveRecord::Relation object
-      #@all_ratings = Movie.select(:rating).map(&:rating).uniq
+      #checkboxes rating
       @all_ratings = Movie.all_ratings
-        
-      sort = params[:sort]
       
-      if sort == 'title'
-        @movies = Movie.order('title asc')
-        @header_title_highlight = 'bg-warning hilite'
-      elsif sort == 'release_date'
-        @movies = Movie.order('release_date asc')
-        @header_release_highlight = 'bg-warning hilite'
-      else
-        @movies = Movie.all
-      end
+      #sort  
+      #sort = params[:sort] || session[:sort]
+      #ratings = params[:ratings]&.keys || session[:ratings]
 
-      if params[:ratings]
-        ratings = params[:ratings]&.keys
-        #@movies = Movie.where(rating: ratings)
-        @movies = Movie.with_ratings ratings
+      #if params[:sort].nil? && session[:sort]
+      #  redirect_to movies_path(sort: session[:sort])
+      #end
+      
+      #if !(params[:sort].present? && params[:ratings].present?)
+        #redirect_to movies_path(sort: session[:sort], ratings: session[:ratings])
+        #redirect_to movies_path(sort: session[:sort])
+      #end
+
+      sort = params[:sort]
+      @movies = params[:ratings].nil? ? ( sort_by sort ) : (Movie.with_ratings params[:ratings]&.keys) 
+
+      session['ratings'] = params[:ratings]
+      session['sort'] = params[:sort]
+    end
+
+    def sort_by sort
+      if sort == 'title'
+        @header_title_highlight = 'bg-warning hilite'
+        Movie.order('title asc')
+      elsif sort == 'release_date'
+        @header_release_highlight = 'bg-warning hilite'
+        Movie.order('release_date asc')
+      else
+        Movie.all
       end
- 
     end
 
     def new
