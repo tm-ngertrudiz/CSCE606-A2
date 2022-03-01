@@ -23,8 +23,8 @@ class MoviesController < ApplicationController
         #redirect_to movies_path(sort: session[:sort])
       #end
 
-      sort = params[:sort]
-      @movies = params[:ratings].nil? ? ( sort_by sort ) : (Movie.with_ratings params[:ratings]&.keys) 
+      #sort = params[:sort]
+      @movies = params[:ratings].nil? ? ( sort_by params[:sort] ) : (Movie.with_ratings params[:ratings]&.keys) 
 
       session['ratings'] = params[:ratings]
       session['sort'] = params[:sort]
