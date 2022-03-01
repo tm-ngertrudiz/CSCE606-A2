@@ -9,25 +9,32 @@ class MoviesController < ApplicationController
     def index
       #checkboxes rating
       @all_ratings = Movie.all_ratings
-      
-      #sort  
-      #sort = params[:sort] || session[:sort]
-      #ratings = params[:ratings]&.keys || session[:ratings]
 
-      #if params[:sort].nil? && session[:sort]
-      #  redirect_to movies_path(sort: session[:sort])
-      #end
-      
-      #if !(params[:sort].present? && params[:ratings].present?)
-        #redirect_to movies_path(sort: session[:sort], ratings: session[:ratings])
-        #redirect_to movies_path(sort: session[:sort])
-      #end
+      flash.keep
+      if params[:ratings].present? && params[:sort].present?
+        @movies =  ( sort_by params[:sort] ).where( params[:ratings]&.keys )
+      elsif params[:ratings].present? || params[:sort].present?
+        @movies = params[:ratings].nil? ? ( sort_by params[:sort] ) : (Movie.with_ratings params[:ratings]&.keys) 
+      elsif session[:sort] && session[:ratings]
+        #flash.keep
+        redirect_to movies_path sort: session[:sort], ratings: session[:ratings]
+      elsif params[:sort].nil? && session[:sort]
+        #flash.keep
+        redirect_to movies_path sort: session[:sort] 
+      elsif params[:ratings].nil? && session[:ratings]
+        #flash.keep
+        redirect_to movies_path ratings: session[:ratings]
+      end  
 
-      #sort = params[:sort]
       @movies = params[:ratings].nil? ? ( sort_by params[:sort] ) : (Movie.with_ratings params[:ratings]&.keys) 
 
-      session['ratings'] = params[:ratings]
-      session['sort'] = params[:sort]
+
+      if params[:ratings].present?
+        session[:ratings] = params[:ratings]
+      elsif params[:sort].present?
+        session[:sort] = params[:sort]
+      end
+
     end
 
     def sort_by sort
